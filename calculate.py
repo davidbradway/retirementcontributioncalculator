@@ -1,8 +1,8 @@
 def calculate(salary: float):
     first_level_rate = 8.9 / 100.0
-    first_level_limit = 64750.0
+    first_level_limit = 66950.0
     second_level_rate = 13.2 / 100.0
-    second_level_limit = 280000.0
+    second_level_limit = 285000.0
 
     if salary >= second_level_limit:
         amount = first_level_rate * (first_level_limit) + second_level_rate * (second_level_limit - first_level_limit) 
