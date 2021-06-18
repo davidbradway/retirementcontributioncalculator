@@ -1,7 +1,7 @@
 import argparse
 
 
-def calculate(salary: float):
+def calculate(salary: float) -> float:
     first_level_rate = 8.9 / 100.0
     first_level_limit = 69400.0
     second_level_rate = 13.2 / 100.0
@@ -29,7 +29,10 @@ def init_argparse() -> argparse.ArgumentParser:
         "-v", "--version", action="version",
         version = f"{parser.prog} version 1.0.0"
     )
-    parser.add_argument('salary', help="Find Duke Reitrement contriubution for this salary", type=float, nargs='*')
+    parser.add_argument(
+        'salary', help="Find Duke Reitrement contriubution for this salary",
+        type=float, nargs='*'
+    )
     return parser
 
 
@@ -37,11 +40,11 @@ def main() -> None:
     parser = init_argparse()
     args = parser.parse_args()
     if not args.salary:
-        sal = 1000000
-        print(f'For ${sal} salary, Duke retirement contriubution = ${calculate(sal):.2f}')
-    for sal in args.salary:
+        salary = 290000.0
+        print(f'For ${salary:.2f} salary, Duke retirement contriubution = ${calculate(salary):.2f}')
+    for salary in args.salary:
         try:
-            print(f'For ${sal} salary, Duke retirement contriubution = ${calculate(sal):.2f}')
+            print(f'For ${salary:.2f} salary, Duke retirement contriubution = ${calculate(salary):.2f}')
         except Exception as err:
             print(f"{sys.argv[0]}: {sal}: {err.strerror}", file=sys.stderr)
 
