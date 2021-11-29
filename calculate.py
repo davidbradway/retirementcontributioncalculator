@@ -42,11 +42,12 @@ def main() -> None:
     if not args.salary:
         salary = 290000.0
         print(f'For ${salary:.2f} salary, Duke retirement contriubution = ${calculate(salary):.2f}')
-    for salary in args.salary:
-        try:
-            print(f'For ${salary:.2f} salary, Duke retirement contriubution = ${calculate(salary):.2f}')
-        except Exception as err:
-            print(f"{sys.argv[0]}: {sal}: {err.strerror}", file=sys.stderr)
+    else:
+        for salary in args.salary:
+            try:
+                print(f'For ${salary:.2f} salary, Duke retirement contriubution = ${calculate(salary):.2f}')
+            except Exception as err:
+                print(f"{sys.argv[0]}: {salary}: {err.strerror}", file=sys.stderr)
 
 
 if __name__ == '__main__':
