@@ -21,9 +21,9 @@ def calculate(salary: float) -> float:
     """
 
     first_level_rate = 8.9 / 100.0
-    first_level_limit = 80650.0
+    first_level_limit = 88650.0
     second_level_rate = 13.2 / 100.0
-    second_level_limit = 345000.0
+    second_level_limit = 360000.0
 
     if salary >= second_level_limit:
         amount = first_level_rate * (first_level_limit) + second_level_rate * (second_level_limit - first_level_limit)
