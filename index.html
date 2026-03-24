@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Duke Retirement Contribution Calculator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      padding: 2rem;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      color: #012169; /* Duke blue */
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.4rem;
+    }
+
+    .input-wrap {
+      position: relative;
+      margin-bottom: 1.25rem;
+    }
+
+    .input-wrap span {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #555;
+      font-size: 1rem;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 0.6rem 0.75rem 0.6rem 1.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="number"]:focus { border-color: #012169; }
+
+    button {
+      width: 100%;
+      padding: 0.7rem;
+      background: #012169;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    button:hover { background: #003087; }
+
+    .result {
+      margin-top: 1.5rem;
+      display: none;
+    }
+
+    .result.visible { display: block; }
+
+    .result-total {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #012169;
+      margin-bottom: 0.75rem;
+    }
+
+    .breakdown {
+      background: #f0f4ff;
+      border-radius: 4px;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      color: #333;
+    }
+
+    .breakdown table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .breakdown td {
+      padding: 0.2rem 0;
+    }
+
+    .breakdown td:last-child {
+      text-align: right;
+      font-weight: 600;
+    }
+
+    .breakdown .total-row td {
+      border-top: 1px solid #c0c8e8;
+      padding-top: 0.4rem;
+      margin-top: 0.4rem;
+      font-weight: 700;
+    }
+
+    .error {
+      margin-top: 1rem;
+      color: #b00;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .error.visible { display: block; }
+
+    .tiers-note {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: #888;
+      border-top: 1px solid #eee;
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Duke Retirement Contribution Calculator</h1>
+    <p class="subtitle">Estimates the annual Duke contribution to your retirement account based on salary.</p>
+
+    <label for="salary">Annual Salary</label>
+    <div class="input-wrap">
+      <span>$</span>
+      <input type="number" id="salary" placeholder="e.g. 109000" min="0" step="1">
+    </div>
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div class="error" id="error"></div>
+
+    <div class="result" id="result">
+      <div class="result-total" id="result-total"></div>
+      <div class="breakdown">
+        <table>
+          <tbody id="breakdown-rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tiers-note">
+      <strong>Tier structure (2026):</strong>
+      8.9% on the first $88,650 &middot;
+      13.2% on $88,650&ndash;$360,000 &middot;
+      capped at $360,000
+    </div>
+  </div>
+
+  <script>
+    const FIRST_LEVEL_RATE  = 0.089;
+    const FIRST_LEVEL_LIMIT = 88650.0;
+    const SECOND_LEVEL_RATE  = 0.132;
+    const SECOND_LEVEL_LIMIT = 360000.0;
+
+    function computeContribution(salary) {
+      if (salary < 0) throw new Error("Salary must be a positive number.");
+
+      let tier1, tier2;
+
+      if (salary >= SECOND_LEVEL_LIMIT) {
+        tier1 = FIRST_LEVEL_RATE * FIRST_LEVEL_LIMIT;
+        tier2 = SECOND_LEVEL_RATE * (SECOND_LEVEL_LIMIT - FIRST_LEVEL_LIMIT);
+      } else if (salary > FIRST_LEVEL_LIMIT) {
+        tier1 = FIRST_LEVEL_RATE * FIRST_LEVEL_LIMIT;
+        tier2 = SECOND_LEVEL_RATE * (salary - FIRST_LEVEL_LIMIT);
+      } else {
+        tier1 = FIRST_LEVEL_RATE * salary;
+        tier2 = 0;
+      }
+
+      return { tier1, tier2, total: tier1 + tier2 };
+    }
+
+    function fmt(n) {
+      return n.toLocaleString("en-US", { style: "currency", currency: "USD" });
+    }
+
+    function calculate() {
+      const errorEl  = document.getElementById("error");
+      const resultEl = document.getElementById("result");
+      errorEl.classList.remove("visible");
+      resultEl.classList.remove("visible");
+
+      const raw = document.getElementById("salary").value.trim();
+      if (raw === "") {
+        errorEl.textContent = "Please enter a salary.";
+        errorEl.classList.add("visible");
+        return;
+      }
+
+      const salary = parseFloat(raw);
+      if (isNaN(salary) || salary < 0) {
+        errorEl.textContent = "Please enter a valid non-negative salary.";
+        errorEl.classList.add("visible");
+        return;
+      }
+
+      const { tier1, tier2, total } = computeContribution(salary);
+
+      document.getElementById("result-total").textContent =
+        "Annual contribution: " + fmt(total);
+
+      const rows = document.getElementById("breakdown-rows");
+      rows.innerHTML = "";
+
+      const addRow = (label, value) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${label}</td><td>${fmt(value)}</td>`;
+        rows.appendChild(tr);
+      };
+
+      addRow(`Tier 1 (8.9% on ${fmt(Math.min(salary, FIRST_LEVEL_LIMIT))})`, tier1);
+      if (tier2 > 0) {
+        const tier2Base = Math.min(salary, SECOND_LEVEL_LIMIT) - FIRST_LEVEL_LIMIT;
+        addRow(`Tier 2 (13.2% on ${fmt(tier2Base)})`, tier2);
+        const totalRow = document.createElement("tr");
+        totalRow.className = "total-row";
+        totalRow.innerHTML = `<td>Total</td><td>${fmt(total)}</td>`;
+        rows.appendChild(totalRow);
+      }
+
+      resultEl.classList.add("visible");
+    }
+
+    // Allow Enter key to trigger calculation
+    document.getElementById("salary").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") calculate();
+    });
+  </script>
+</body>
+</html>
