@@ -4,7 +4,7 @@ This is a snippet of code with the Duke retirement contribution rates. It can be
 
 ## Web UI
 
-A browser-based calculator is available via Pages:
+A browser-based calculator is available via Pages:  
 **https://davidbradway.github.io/retirementcontributioncalculator/**
 **https://dpb6.pages.oit.duke.edu/retirementcontributioncalculator/**
 
